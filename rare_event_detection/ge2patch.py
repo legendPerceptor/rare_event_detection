@@ -4,9 +4,8 @@ return a list of patches in a h5 file
 
 """
 
-import argparse, os, time, h5py, glob, cv2
+import os, h5py, cv2
 import numpy as np
-import pandas as pd 
 
 import fabio
 import warnings

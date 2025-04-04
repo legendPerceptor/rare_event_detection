@@ -1,6 +1,6 @@
-from utility import * 
-from embed import Embed
-from cluster import Cluster
+from .utility import * 
+from .embed import Embed
+from .cluster import Cluster
 import pandas as pd
 from tqdm import tqdm
 import time

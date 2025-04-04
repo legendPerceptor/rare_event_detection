@@ -4,7 +4,7 @@ import torch
 import h5py
 import sys
 from torch.utils.data import Dataset
-from utility import ge_raw2array_fabio, ge_raw2array, ge_raw2patch
+from .utility import ge_raw2array_fabio, ge_raw2array, ge_raw2patch
 
 def data_transforms(psz):
     # get a set of data augmentation transformations 

@@ -11,7 +11,7 @@ import numpy as np
 import math
 import random
 
-from utility import * 
+from .utility import * 
 
 class Embed:
 

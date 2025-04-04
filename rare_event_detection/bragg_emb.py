@@ -2,12 +2,12 @@ import logging
 import os
 import torch
 
-from dataset import BraggDataset
+from .dataset import BraggDataset
 from time import perf_counter
 from pathlib import Path
 from torch.utils.data import DataLoader
 
-from model import BraggPeakBYOL, MLPhead, targetNN
+from .model import BraggPeakBYOL, MLPhead, targetNN
 
 def regression_loss(x, y):
     x = torch.nn.functional.normalize(x, dim=-1, p=2)

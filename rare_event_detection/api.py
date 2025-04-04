@@ -1,8 +1,8 @@
-from embed import Embed
-from cluster import Cluster
+from .embed import Embed
+from .cluster import Cluster
 from pathlib import Path
 from utility import find_dataset_single
-from run_detection import ds_anamoly_quantify
+from .run_detection import ds_anamoly_quantify
 
 import time
 import numpy as np
