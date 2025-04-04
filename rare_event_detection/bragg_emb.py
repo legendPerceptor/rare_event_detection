@@ -50,7 +50,7 @@ def train_bragg_embedding(training_scan_file: Path,
     time_datl_tick = perf_counter()
 
     # modified data loader here to read the raw file 
-    train_ds = BraggDataset(training_scan_file, training_dark_file, thold=thold, psz=psz, train=True) 
+    train_ds = BraggDataset(training_scan_file, training_dark_file, data_folder=itr_out_dir, thold=thold, psz=psz, train=True) 
 
     print(f'data load phase 1 time is {perf_counter()-time_datl_tick}')
 

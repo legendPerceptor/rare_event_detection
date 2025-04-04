@@ -5,6 +5,7 @@ import h5py
 import sys
 from torch.utils.data import Dataset
 from .utility import ge_raw2array_fabio, ge_raw2array, ge_raw2patch
+from pathlib import Path
 
 def data_transforms(psz):
     # get a set of data augmentation transformations 
@@ -56,7 +57,7 @@ class BraggDatasetMIDAS(Dataset):
 
 
 class BraggDataset(Dataset):
-    def __init__(self, irawt, irawd, thold, psz=-1, train=True, tv_split=1):
+    def __init__(self, irawt, irawd, thold, data_folder=Path("."), psz=-1, train=True, tv_split=1):
         self.transform = data_transforms(psz)
 
         # read the raw scan and dark file and output a h5 file for later processing
@@ -67,7 +68,7 @@ class BraggDataset(Dataset):
         else:
             print(f"no dark file provided, skip dark file reading")
 
-        outFile = "test.h5"
+        outFile = data_folder / "test.h5"
         print(f"Reading training file from {irawt} ... ")
         if irawd != "default_dark":
             ge_raw2patch(gefname=irawt, ofn=outFile, dark=dark, thold=thold, psz=15, skip_frm=0, \
