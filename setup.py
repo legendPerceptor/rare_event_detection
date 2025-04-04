@@ -13,6 +13,9 @@ setup(
         "pandas>=2.0.3",
         "matplotlib>=3.7.1",
         "fabio",
-        
+        "opencv-python>=4.7.0",
+        "scipy>=1.11.2",
+        "tqdm>=4.65.0",
+        "pyyaml>=6.0",
     ]
 )
