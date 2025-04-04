@@ -3,6 +3,7 @@ from rare_event_detection.bragg_emb import train_bragg_embedding
 
 from pathlib import Path
 import argparse
+import logging
 
 def main(DATA_DIR: Path, EXPERIMENT_DIR: Path):
 
@@ -22,12 +23,14 @@ def main(DATA_DIR: Path, EXPERIMENT_DIR: Path):
     EmbeddingModelIterDir.mkdir(parents=True, exist_ok=True)
     KMeansModelPath = EXPERIMENT_DIR / "kmeans_model.pkl"
 
+    logging.info("Starting the rare event detection pipeline...")
     # Step 1. Train the embedding model using the baseline scan
     train_bragg_embedding(
         training_scan_file=baseline_scan_path,
         training_dark_file=baseline_dark_path,
         itr_out_dir=EmbeddingModelIterDir)
     
+    logging.info("Training completed. Preparing KMeans model...")
     # We use the last checkpoint for the default setting
     # You can also specify the checkpoint path directly
     trained_encoder_path = EmbeddingModelIterDir / "script-ep00100.pth"
@@ -38,7 +41,8 @@ def main(DATA_DIR: Path, EXPERIMENT_DIR: Path):
         base_line_scan_path=baseline_scan_path,
         dark_4_base_line_path=baseline_dark_path,
         kmeans_model_save_path=KMeansModelPath)
-
+    
+    logging.info("KMeans model preparation completed. Starting REI calculation...")
     # Step 3. Get the REI from the test scan using the trained embedding model and KMeans model
     REI_score, time_consumed = get_REI_from_testing_scan(
         trained_encoder_path=EmbeddingModelIterDir,
@@ -46,6 +50,7 @@ def main(DATA_DIR: Path, EXPERIMENT_DIR: Path):
         testing_scan_dark_path=test_dark_path,
         kmeans_model_path=KMeansModelPath)
     
+    logging.info("REI calculation completed.")
     print(f"REI score: {REI_score}")
     print(f"Time consumed: {time_consumed:.2f} seconds")
 
