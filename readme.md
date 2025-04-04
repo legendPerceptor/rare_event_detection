@@ -37,3 +37,5 @@ REI_score, time_consumed = get_REI_from_testing_scan(
     testing_scan_dark_path=test_dark_path,
     kmeans_model_path=KMeansModelPath)
 ```
+
+We also prepared a [run_example.sh](run_example.sh) file for users to run the pipeline in a HPC system that uses PBS scheduler. Remember to change the paths in this file to suit your own needs.
