@@ -20,7 +20,7 @@ def train_bragg_embedding(training_scan_file: Path,
                          itr_out_dir: Path, # iterated output directory for trained models
                          thold: int=100, # threshold value to process raw images
                          psz: int=15, # training model patch size
-                         maxep: int=1000, # max training epochs
+                         maxep: int=100, # max training epochs
                          mbsz: int=256, # mini batch size
                          nworks: int=8, # number of workers for data loading
                          lr: float=1e-3, # learning rate
