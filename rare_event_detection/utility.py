@@ -176,11 +176,11 @@ def find_dataset_pooling(dataDir, thold, datasetPre):
 
 
 # finish a function here to 
-def find_dataset_single(idata, idark, thold, datasetPre):
+def find_dataset_single(idata, idark, thold, datasetPre, outputFile=None):
 
     print(f"Raw file based mode is enabled, now need to process {idata} and substract it by the dark file {idark} if provided")
 
-    listFiles = list(idata)
+    listFiles = [str(idata)]
 
     # need to add the function to subtract the dark file, patch extraction and output to a h5 file
     # read the raw scan and dark file and output a h5 file for later processing    
@@ -192,7 +192,7 @@ def find_dataset_single(idata, idark, thold, datasetPre):
         print(f"no dark file provided, skip dark file reading")
 
 
-    outFile = f"{datasetPre}.h5"
+    outFile = f"{datasetPre}.h5" if outputFile is None else outputFile
     print(f'the output h5 file is:{outFile}')
 
     print(f"Reading baseline/testing file from {idata} ... ")    

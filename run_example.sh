@@ -8,7 +8,8 @@
 #PBS -o /lcrc/project/ECP-EZ/yuanjian/APS-data/experiment-apr4/rare_detect.out
 #PBS -e /lcrc/project/ECP-EZ/yuanjian/APS-data/experiment-apr4/rare_detect.err
 
+module load anaconda3/2024.10
 conda activate rare_event
 cd /home/ac.yuanjian/aps/rare_event_detection
-python example.py --data_dir /lcrc/project/ECP-EZ/yuanjian/APS-data --experiment_dir /lcrc/project/ECP-EZ/yuanjian/APS-data/experiment-apr4
+python example.py --data_dir /lcrc/project/ECP-EZ/yuanjian/APS-data --experiment_dir /lcrc/project/ECP-EZ/yuanjian/APS-data/experiment-apr5
 

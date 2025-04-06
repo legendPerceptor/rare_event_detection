@@ -14,7 +14,7 @@ def prepare_kmeans_model(trained_encoder_path: Path,
                          threshold: int=100,
                          num_of_clusters: int=40,
                          uq_threshold: float=0.4):
-    baseh5_dataset, _, _ = find_dataset_single(base_line_scan_path, dark_4_base_line_path, threshold, "base")
+    baseh5_dataset, _, _ = find_dataset_single(base_line_scan_path, dark_4_base_line_path, threshold, "base", trained_encoder_path.parent / "base.h5")
     print("The baseh5_dataset: ", baseh5_dataset)
     embmdl = Embed(trained_encoder_path)
     emb_bl, _ = embmdl.peak2emb_missingwedge(baseh5_dataset[0])
@@ -23,7 +23,7 @@ def prepare_kmeans_model(trained_encoder_path: Path,
 
     dist_and_uq = [] # used to store distribution and UQ for all datasets
     dataset_tag = [base_line_scan_path]
-    uq_bl, dist_bl = clusmdl.kmeans_clustering_and_dist(emb_bl, min_score=uq_threshold)
+    uq_bl, dist_bl = clusmdl.kmeans_clustering_and_dist(emb_bl, min_score=uq_threshold, saved_model=kmeans_model_save_path)
     dist_and_uq.append(np.append(dist_bl, uq_bl))
     print("The uq of baseline: ", uq_bl)
 
@@ -33,7 +33,7 @@ def get_REI_from_testing_scan(trained_encoder_path: Path,
                               testing_scan_dark_path: Path,
                               kmeans_model_path: Path,
                               threshold: int=100, uq_threshold: float=0.4, num_of_clusters: int=40):
-    list_datasets, list_pressures, list_idx = find_dataset_single(testing_scan_dark_path, testing_scan_dark_path, threshold, "test")
+    list_datasets, list_pressures, list_idx = find_dataset_single(testing_scan_path, testing_scan_dark_path, threshold, "test", trained_encoder_path.parent / "test.h5")
     # create a new embed class
     embmdl = Embed(trained_encoder_path)
 

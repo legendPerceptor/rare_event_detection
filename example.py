@@ -37,7 +37,7 @@ def main(DATA_DIR: Path, EXPERIMENT_DIR: Path):
 
     # Step 2. Prepare the KMeans model using the trained embedding model
     prepare_kmeans_model(
-        trained_encoder_path=EmbeddingModelIterDir,
+        trained_encoder_path=trained_encoder_path,
         base_line_scan_path=baseline_scan_path,
         dark_4_base_line_path=baseline_dark_path,
         kmeans_model_save_path=KMeansModelPath)
@@ -45,7 +45,7 @@ def main(DATA_DIR: Path, EXPERIMENT_DIR: Path):
     logging.info("KMeans model preparation completed. Starting REI calculation...")
     # Step 3. Get the REI from the test scan using the trained embedding model and KMeans model
     REI_score, time_consumed = get_REI_from_testing_scan(
-        trained_encoder_path=EmbeddingModelIterDir,
+        trained_encoder_path=trained_encoder_path,
         testing_scan_path=test_scan_path,
         testing_scan_dark_path=test_dark_path,
         kmeans_model_path=KMeansModelPath)

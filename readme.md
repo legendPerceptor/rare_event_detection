@@ -21,7 +21,7 @@ train_bragg_embedding(
 ```python
 from rare_event_detection.api import prepare_kmeans_model
 prepare_kmeans_model(
-    trained_encoder_path=EmbeddingModelIterDir,
+    trained_encoder_path=trained_encoder_path,
     base_line_scan_path=baseline_scan_path,
     dark_4_base_line_path=baseline_dark_path,
     kmeans_model_save_path=KMeansModelPath)
@@ -32,7 +32,7 @@ prepare_kmeans_model(
 ```python
 from rare_event_detection.api import get_REI_from_testing_scan
 REI_score, time_consumed = get_REI_from_testing_scan(
-    trained_encoder_path=EmbeddingModelIterDir,
+    trained_encoder_path=trained_encoder_path,
     testing_scan_path=test_scan_path,
     testing_scan_dark_path=test_dark_path,
     kmeans_model_path=KMeansModelPath)
