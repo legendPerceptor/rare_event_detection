@@ -11,6 +11,104 @@ import logging
 # library for patch extraction
 import cv2, os, h5py
 
+import numpy as np
+import cv2
+
+def frame_peak_patches_cv2_optimized(frame, psz, angle, min_intensity=0, max_r=None):
+    """
+    An optimized version of frame_peak_patches_cv2 that:
+      - Vectorizes dimension checks (width, height) and radius checks
+      - Minimizes repeated slicing and padding calls
+      - Skips small or large or out-of-range components early
+    """
+    fh, fw = frame.shape
+    
+    # Build a simple binary mask for connected components
+    mask = (frame > min_intensity).astype(np.uint8)
+    comps, cc_labels, stats, centroids = cv2.connectedComponentsWithStats(mask)
+    # stats columns: [LEFT, TOP, WIDTH, HEIGHT, AREA]
+    # centroids:     (x, y)
+
+    # Extract the widths & heights from the stats (ignore comp = 0)
+    widths  = stats[1:, cv2.CC_STAT_WIDTH]
+    heights = stats[1:, cv2.CC_STAT_HEIGHT]
+    
+    # 1) Skip single‐pixel (or too small) components
+    # 2) Skip components bigger than patch size
+    too_small_mask = (widths < 3) | (heights < 3)
+    too_large_mask = (widths > psz) | (heights > psz)
+    valid_dims_mask = ~(too_small_mask | too_large_mask)
+
+    # Optional: also skip if centroid is outside max radius
+    if max_r is not None:
+        # Distance from frame center
+        xs = centroids[1:, 0] - (fw / 2)
+        ys = centroids[1:, 1] - (fh / 2)
+        dist2 = xs*xs + ys*ys
+        in_radius_mask = dist2 <= (max_r**2)
+        valid_dims_mask &= in_radius_mask
+
+    # Figure out which component indices survive all checks
+    valid_comp_indices = np.where(valid_dims_mask)[0] + 1  # offset by 1
+
+    # For reporting how many big / small peaks we skipped
+    big_peaks = np.count_nonzero(too_large_mask)
+    small_pixel_peaks = np.count_nonzero(too_small_mask)
+
+    patches = []
+    peak_ori = []
+
+    # Iterate only over the surviving components
+    for comp in valid_comp_indices:
+        # Bounding box
+        col_s = stats[comp, cv2.CC_STAT_LEFT]
+        col_e = col_s + stats[comp, cv2.CC_STAT_WIDTH]
+        row_s = stats[comp, cv2.CC_STAT_TOP]
+        row_e = row_s + stats[comp, cv2.CC_STAT_HEIGHT]
+
+        # Slice out the region and zero out everything but "comp"
+        local_cc = cc_labels[row_s:row_e, col_s:col_e]
+        _patch = frame[row_s:row_e, col_s:col_e]
+        _mask  = (local_cc == comp)
+        _patch = _patch * _mask  # zero out non‐comp pixels
+
+        # Pad if needed (only if patch is smaller than psz × psz)
+        h, w = _patch.shape
+        if h != psz or w != psz:
+            # Compute how much to pad on each side
+            _lp = (psz - w) // 2
+            _rp = (psz - w) - _lp
+            _tp = (psz - h) // 2
+            _bp = (psz - h) - _tp
+            _patch = np.pad(
+                _patch,
+                pad_width=((_tp, _bp), (_lp, _rp)),
+                mode='constant',
+                constant_values=0
+            )
+        else:
+            # No padding was done
+            _tp, _lp = 0, 0
+
+        # Check if patch is uniform (all zero or all same value)
+        # If min == max, it’s not interesting
+        if _patch.min() == _patch.max():
+            continue
+
+        # Compute the offset of the patch in the original image
+        _pr_o = row_s - _tp
+        _pc_o = col_s - _lp
+        peak_ori.append((angle, _pr_o, _pc_o))
+        patches.append(_patch)
+
+    # Convert to an array once at the end
+    patches = np.array(patches, dtype=np.float16)
+    peak_ori = np.array(peak_ori, dtype=np.float32)  # or float64, depending on your preference
+
+    return patches, peak_ori, big_peaks
+
+
+
 def frame_peak_patches_cv2(frame, psz, angle, min_intensity=0, max_r=None):
     fh, fw = frame.shape
     patches, peak_ori = [], []
@@ -135,7 +233,7 @@ def ge_raw2patch(gefname, ofn, dark, thold, psz, skip_frm=0, min_intensity=0, ma
 
     too_big_peaks = 0
     for i in range(frames.shape[0]):
-        _pc, _ori, _bp = frame_peak_patches_cv2(frames[i], angle=i, psz=psz, min_intensity=0, max_r=None)
+        _pc, _ori, _bp = frame_peak_patches_cv2_optimized(frames[i], angle=i, psz=psz, min_intensity=0, max_r=None)
         if(_pc.size == 0):
             continue
         patches.append(_pc)
