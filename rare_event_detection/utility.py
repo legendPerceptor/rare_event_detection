@@ -69,19 +69,22 @@ def frame_peak_patches_cv2(frame, psz, angle, min_intensity=0, max_r=None):
 
 def ge_raw2array(gefname, skip_frm=0):
     det_res = 2048
-    frame_sz= det_res * det_res * 2
+    frame_sz= det_res * det_res * 2 # the 2 is the size of uint16
     head_sz = 8192 + skip_frm * frame_sz # skip frames as needed
     n_frame = int((os.stat(gefname).st_size - head_sz) / frame_sz)
     mod = (os.stat(gefname).st_size - head_sz) % frame_sz
     if mod != 0:
         print("data in the file are not completely parsed, %d left over" % mod)
-        
+    
+    print(f"n_frame: {n_frame}, head_sz: {head_sz}")
+    
     with open(gefname, "rb") as fp:
         fp.seek(head_sz, os.SEEK_SET)
-        frames = np.zeros((n_frame, det_res, det_res), dtype=np.uint16)
-        for i in range(n_frame):
-            frames[i] = np.fromfile(fp, dtype=np.uint16, count=det_res*det_res).reshape(det_res, det_res)
-    
+        # frames = np.zeros((n_frame, det_res, det_res), dtype=np.uint16)
+        frames = np.fromfile(fp, dtype=np.uint16, count=n_frame*det_res*det_res).reshape((n_frame, det_res, det_res))
+
+    print(f"NONfabio frames dimension: {frames.shape}")
+
     return frames
 
 def ge_raw2array_fabio(gefname, skip_frm=0):
@@ -107,20 +110,25 @@ def ge_raw2array_fabio(gefname, skip_frm=0):
     # Convert the list of frames to a 3D NumPy array
     frames_array = np.array(frames)
 
-    print("frames_array_dimension: ", frames_array.shape)
-    print("frames_array: ", frames_array)
+    print("fabio frames_array_dimension: ", frames_array.shape)
+    # print("frames_array: ", frames_array)
 
     return frames_array
 
 def ge_raw2patch(gefname, ofn, dark, thold, psz, skip_frm=0, min_intensity=0, max_r=None):
     frames = ge_raw2array(gefname, skip_frm=1)
-    
+
+    print(f"ge_raw2_path frames dimension: {frames.shape}")
+
     if not isinstance(dark, str):
+        print(f"dark file dimension: {dark.shape}")
         frames = frames.astype(np.float32) - dark
 
     if thold > 0:
         frames[frames < thold] = 0
     frames = frames.astype(np.uint16)
+
+    print("finish subtraction of the dark")
     
     patches, peak_ori = [], []
     frames_idx = []
